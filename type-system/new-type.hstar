@@ -1,0 +1,29 @@
+package "github:big-h-star/hstar-example-code/"
+
+{# One defines a new type with the keyword `type` followed by the name of the
+ # new type.
+ #}
+
+{# A refined type is a restriction of legal values given an existing type.
+ # Refined types are checked at runtime.
+ #}
+
+type Age is Float x where
+  (x > 0.0 and x != Float.Inf ||| Float.NegInf ||| Float.Nan)
+
+type Name is String s where
+  for name in s splitWhere _.isWhitespace
+    name(0) isUpperCase
+
+{# A composite type is a type made up of other types contained within it.
+ # Composite types are checked at compile time.
+ #}
+
+type Person where
+  let name :: Name
+      age :: Age
+      gender :: Gender
+      <A>identityDocument :: Guid(A)
+
+type SocialSecurityNumber is String s where
+  s matches regex"\d{3}-\d{2}-\d{4}"

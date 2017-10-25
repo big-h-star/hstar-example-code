@@ -1,0 +1,46 @@
+package "github:big-h-star/hstar-example-code/"
+
+{# Generics have a bit of a tricky syntax.
+ # When defining a *new* type, you must use square brackets (`[` and `]`).
+ # When applying a type constructor, you must use parentheses (`(` and `)`).
+ # Anonymous types can be constructed on the fly by using both.
+ #}
+
+{# let `creatures` be a List of type `A` where `A` is a subclass of or is equal
+ # to the type of `Animal`
+ #}
+let creatures :: [A <= Animal]List(A) = List(cat, dog, bird, fish)
+
+{# This can alternatively be written as #}
+let type A <= Animal in
+  let creatures :: List(A) = List(cat, dog, bird, fish)
+
+{# Type parameters can be covariant or contravariant.
+ # Covariance is enabled by prefixing a type identifier with `+`.
+ # Contravariance is enabled by prefixing a type identifier with `-`.
+ #}
+
+{# `List` is a class family on covariant types `A` with inhabitants `Cons` and
+ # `Nil` such that a `List(A)` is a `Collection` and is a `Traversable`.
+ #}
+typeclass [+A]List(A) { case Cons, case Nil }
+    <= Collection(List(A)), Traversable(List(A)) where
+  @doc("The first element of a list.")
+  def head :: A
+
+  @doc("The list minus the `head` and `foot`.")
+  def body :: List(A) = tail.reverse.tail.reverse
+
+  @doc("The list minus the `head`")
+  def tail :: List(A)
+
+  @doc("Whether the list is empty.")
+  def isEmpty :: Boolean
+
+  @doc("Whether the list is not empty.", complementOf="isEmpty")
+  def isNonEmpty :: Boolean = !isEmpty
+
+  def [B >= A]map(f :: A -> B) :: List(B)
+
+final type [+A]Cons(A) <= List(A) = Cons(def head :: A, def tail :: List(A))
+final type Nil <= List(Nothing)
